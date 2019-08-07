@@ -1,0 +1,54 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd" >
+
+<mapper namespace="com.example.demo.helloworld.dao.UserMapper">
+
+    <!--自定义数据库字段与实体类属性的映射关系-->
+    <resultMap id="userResultMap" type="com.example.demo.helloworld.entity.UserInfo">
+        <result column="id" property="id" jdbcType="INTEGER"/>
+        <result column="user_name" property="userName" jdbcType="VARCHAR"/>
+        <result column="address" property="address" jdbcType="VARCHAR"/>
+        <result column="add_time" property="addTime" jdbcType="TIMESTAMP"/>
+    </resultMap>
+
+    <!--新增用户-->
+    <insert id="addUserInfo" parameterType="com.example.demo.helloworld.entity.UserInfo">
+        insert into user_info values(
+          #{id},
+          #{userName},
+          #{address},
+          #{addTime}
+        )
+    </insert>
+
+    <!--更新用户-->
+    <update id="update" parameterType="com.example.demo.helloworld.entity.UserInfo" >
+        update user_info
+        <set>
+            <if test="userName != null">
+                user_name=#{userName},
+            </if>
+            <if test="address != null">
+                address=#{address},
+            </if>
+            <if test="addTime != null">
+                add_time=#{addTime},
+            </if>
+        </set>
+        <where>
+            <if test="userId != null">
+               user_id=#{userId}
+            </if>
+        </where>
+    </update>
+
+    <!--删除用户-->
+    <delete id="delete" parameterType="Integer">
+        delete from user_info where id=#{id}
+    </delete>
+
+    <!--查询用户-->
+    <select id="selectUser" parameterType="Integer" resultMap="userResultMap">
+        select id, user_name, address, add_time from user_info where id=#{id}
+    </select>
+</mapper>

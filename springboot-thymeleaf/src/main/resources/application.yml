@@ -1,0 +1,14 @@
+#激活测试环境配置
+spring:
+  profiles:
+    active: test
+#激活生产环境配置
+#spring:
+#  profiles:
+#    active: test
+
+#激活开发环境配置
+#spring:
+#  profiles:
+#    active: test
+

@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    log4j2使用说明：
+    1. 使用方式：
+    private static final Logger logger = LoggerFactory.getLogger(实际类名.class);
+    2、特别说明：
+    （1）需要注意日志文件备份数和日志文件大小，注意预留目录空间。
+    （2）实际部署的时候需要将Properties中的路径修改为Linux路径。
+    （3）切记不要使用LogManager.getLogger(xxx.class);等API接口，不够规范且不利于日志框架的变更。
+-->
+<Configuration status="info">
+    <!-- log4j2配置中的公共变量 -->
+    <Properties>
+        <!--
+            格式化输出：
+            %date：表示日期
+            %thread：表示线程名
+            %-5level：级别从左显示5个字符宽度
+            %msg：日志消息
+            %n：表示换行符
+            %logger{36}：表示Logger名字最长36个字符
+        -->
+        <!-- 定义日志记录的固定格式 -->
+        <property name="LOG_INFO_STYLE" value="[timi:] %d{yyyy-MM-dd HH:mm:ss.SSS} %-5level %class{36} %L %M - %msg%xEx%n" />
+        <!-- 配置日志文件的存储位置 -->
+        <property name="FILE_PATH" value="/Users/zhengwei/Documents/SpringBoot/log-file/logs" />
+        <!-- 配置日志文件的名称 -->
+        <property name="FILE_NAME" value="demo-log" />
+    </Properties>
+
+    <Appenders>
+        <!--控制台输出日志的配置-->
+        <Console name="Console" target="SYSTEM_OUT">
+            <!--控制台只输出level及以上级别的信息-->
+            <ThresholdFilter level="debug" onMatch="ACCEPT" onMismatch="DENY"/>
+            <!--日志输出的格式-->
+            <PatternLayout pattern="${LOG_INFO_STYLE}"/>
+        </Console>
+
+        <!--这个会打印出所有的信息，每次大小超过size，则这size大小的日志会自动存入按年份-月份建立的文件夹下面并进行压缩，作为存档-->
+        <RollingFile name="RollingFileInfo" fileName="${FILE_PATH}/${FILE_NAME}-info.log"
+                     filePattern="${FILE_PATH}/${FILE_NAME}-info-%d{yyyy-MM-dd}_%i.log.gz">
+            <!-- 当前文件记录info及以上级别的信息，其他信息则忽略-->
+            <ThresholdFilter level="info" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="${LOG_INFO_STYLE}"/>
+            <Policies>
+                <TimeBasedTriggeringPolicy modulate="true" interval="12"/>
+                <SizeBasedTriggeringPolicy size="500MB" />
+            </Policies>
+            <!--文件夹下最多的文件个数,超过该数量则覆盖旧的日志文件-->
+            <DefaultRolloverStrategy max="20" />
+        </RollingFile>
+
+        <!--定义出现错误的日志记录规则-->
+        <RollingFile name="RollingFileError" fileName="${FILE_PATH}/${FILE_NAME}-error.log"
+                     filePattern="${FILE_PATH}/${FILE_NAME}-error-%d{yyyy-MM-dd}_%i.log.gz">
+            <!-- 当前文件记录error及以上级别的信息，其他信息则忽略-->
+            <ThresholdFilter level="error" onMatch="ACCEPT" onMismatch="DENY"/>
+            <PatternLayout pattern="${LOG_INFO_STYLE}"/>
+            <Policies>
+                <!--日志滚动时间-->
+                <TimeBasedTriggeringPolicy modulate="true" interval="12"/>
+                <!--日志滚动大小-->
+                <SizeBasedTriggeringPolicy size="200MB" />
+            </Policies>
+            <!--文件夹下最多的文件个数,超过该数量则覆盖旧的日志文件-->
+            <DefaultRolloverStrategy max="10" />
+        </RollingFile>
+
+        <!-- 记录执行过的sql相关日志信息 -->
+        <RollingFile name="RollingFileSql" fileName="${FILE_PATH}/${FILE_NAME}-sql.log"
+                     filePattern="${FILE_PATH}/${FILE_NAME}-sql-%d{yyyy-MM-dd}_%i.log.gz">
+            <PatternLayout pattern="${LOG_INFO_STYLE}"/>
+            <Policies>
+                <SizeBasedTriggeringPolicy size="500MB"/>
+                <TimeBasedTriggeringPolicy modulate="true" interval="12"/>
+            </Policies>
+        </RollingFile>
+    </Appenders>
+
+    <!--定义loggers，只有定义了logger并引入appender，appender才会生效-->
+    <loggers>
+        <!--建立一个默认的root的logger-->
+        <root level="info">
+            <appender-ref ref="Console"/>
+            <appender-ref ref="RollingFileInfo"/>
+            <appender-ref ref="RollingFileError"/>
+        </root>
+
+        <!-- 打印sql日志信息 -->
+        <logger name="com.example.demo.helloworld.dao" level="debug" additivity="false">
+            <appender-ref ref="Console"/>
+            <appender-ref ref="RollingFileSql"/>
+        </logger>
+    </loggers>
+</Configuration>

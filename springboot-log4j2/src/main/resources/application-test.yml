@@ -1,0 +1,20 @@
+
+#测试环境端口
+server:
+  port: 8082
+spring:
+  #数据路基本信息配置
+  datasource:
+    url: jdbc:mysql://localhost:3306/test?useUnicode=true&characterEncoding=utf-8&zeroDateTimeBehavior=convertToNull
+    username: root
+    password: 12345678
+    type: com.alibaba.druid.pool.DruidDataSource
+    driver-class-name: com.mysql.cj.jdbc.Driver
+
+#MyBatis相关配置
+mybatis:
+  #指定映射文件的路径，这里我是放在了resources/mapper/xxxMapper.xml，其中*Mapper.xml使用通配符，扫描加载所有的Mapper文件
+  mapper-locations: classpath:mapper/*Mapper.xml
+  configuration:
+    lazy-loading-enabled: true
+    default-statement-timeout: 3
